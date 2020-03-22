@@ -1,0 +1,32 @@
+service:
+  name: project-b
+
+package:
+  include: 6576576
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: ${self:custom.region}
+  stage: ${self:custom.stage}
+  memorySize: 1024 # MB
+  timeout: 29 # seconds
+  deploymentBucket:
+    serverSideEncryption: AES256
+
+plugins:
+  - "@kingdarboja/serverless-plugin-typescript"
+
+functions:
+  poll:
+    handler: src/some-handler.someHandler
+    events:
+      - schedule:
+          rate: rate(30 minutes)
+          enabled: true
+          input:
+            exampleKey: "example value"
+
+custom:
+  stage: ${opt:stage, env:STAGE, "staging"}
+  region: ${opt:region, env:AWS_REGION, "ap-southeast-2"}
